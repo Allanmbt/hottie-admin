@@ -58,76 +58,72 @@ const LanguageMultiSelect = ({
     };
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-                <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={open}
-                    className="w-full justify-between h-auto min-h-10"
-                >
-                    <div className="flex flex-wrap gap-1 py-0.5">
-                        {selectedValues.length > 0 ? (
-                            selectedValues.map(selectedValue => {
-                                const option = options.find(opt => opt.value === selectedValue);
-                                return (
-                                    <Badge
-                                        key={selectedValue}
-                                        variant="secondary"
-                                        className="mr-1 mb-1"
-                                    >
-                                        {option?.label || selectedValue}
-                                        <button
-                                            className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                                            onMouseDown={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                handleRemove(selectedValue);
-                                            }}
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                    </Badge>
-                                );
-                            })
-                        ) : (
-                            <span className="text-muted-foreground">{placeholder}</span>
-                        )}
-                    </div>
-                    <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
-                <Command>
-                    <CommandInput placeholder="搜索语言..." />
-                    <CommandEmpty>未找到匹配选项</CommandEmpty>
-                    <CommandGroup className="max-h-60 overflow-auto">
-                        {options.map(option => (
-                            <CommandItem
-                                key={option.value}
-                                value={option.value}
-                                onSelect={() => {
-                                    handleSelect(option.value);
-                                    setOpen(true); // 保持弹窗打开以允许多选
-                                }}
+        <div className="flex flex-col space-y-1.5">
+            <div className="flex flex-wrap gap-1 mb-1.5">
+                {selectedValues.length > 0 && selectedValues.map(selectedValue => {
+                    const option = options.find(opt => opt.value === selectedValue);
+                    return (
+                        <Badge
+                            key={selectedValue}
+                            variant="secondary"
+                            className="mr-1 mb-1 flex items-center"
+                        >
+                            {option?.label || selectedValue}
+                            <span
+                                className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
+                                onClick={() => handleRemove(selectedValue)}
                             >
-                                <Check
-                                    className={cn(
-                                        "mr-2 h-4 w-4",
-                                        selectedValues.includes(option.value) ? "opacity-100" : "opacity-0"
-                                    )}
-                                />
-                                {option.label}
-                            </CommandItem>
-                        ))}
-                    </CommandGroup>
-                </Command>
-            </PopoverContent>
-        </Popover>
+                                <X className="h-3 w-3" />
+                            </span>
+                        </Badge>
+                    );
+                })}
+            </div>
+            
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between"
+                    >
+                        <span className="text-left truncate">
+                            {selectedValues.length > 0 
+                                ? `已选择 ${selectedValues.length} 个语言` 
+                                : <span className="text-muted-foreground">{placeholder}</span>}
+                        </span>
+                        <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                    <Command>
+                        <CommandInput placeholder="搜索语言..." />
+                        <CommandEmpty>未找到匹配选项</CommandEmpty>
+                        <CommandGroup className="max-h-60 overflow-auto">
+                            {options.map(option => (
+                                <CommandItem
+                                    key={option.value}
+                                    value={option.value}
+                                    onSelect={() => {
+                                        handleSelect(option.value);
+                                        setOpen(true); // 保持弹窗打开以允许多选
+                                    }}
+                                >
+                                    <Check
+                                        className={cn(
+                                            "mr-2 h-4 w-4",
+                                            selectedValues.includes(option.value) ? "opacity-100" : "opacity-0"
+                                        )}
+                                    />
+                                    {option.label}
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+        </div>
     );
 };
 

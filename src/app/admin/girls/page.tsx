@@ -59,6 +59,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Image as ImageIcon } from "lucide-react";
 import { GirlAlbumDialog } from "@/components/GirlAlbumDialog";
 import LanguageMultiSelect, { LanguageOption } from "@/components/LanguageMultiSelect";
+import { GirlFormDialog } from "@/components/GirlFormDialog";
 
 type Girl = {
   id: string;
@@ -782,6 +783,23 @@ export default function GirlListPage() {
 
   // 计算总页数
   const totalPages = Math.ceil(totalCount / pageSize);
+  
+  // 表单成功提交后的处理
+  const handleFormSuccess = () => {
+    // 重置状态
+    setIsEditMode(false);
+    setCurrentGirlId(null);
+    
+    // 刷新数据
+    fetchGirls();
+  };
+  
+  // 添加新技师
+  const handleAddNewGirl = () => {
+    setIsEditMode(false);
+    setCurrentGirlId(null);
+    setIsAddOpen(true);
+  };
 
   return (
     <>
@@ -904,10 +922,7 @@ export default function GirlListPage() {
 
               <Button
                 className="ml-auto h-10 flex items-center gap-1 bg-green-600 hover:bg-green-700"
-                onClick={() => {
-                  resetForm(); // 重置表单，确保是干净状态
-                  setIsAddOpen(true);
-                }}
+                onClick={handleAddNewGirl}
               >
                 <Plus className="h-4 w-4" />
                 <span>添加技师</span>
@@ -1115,553 +1130,15 @@ export default function GirlListPage() {
         </CardContent>
       </Card>
 
-      {/* 添加到 GirlListPage 组件返回的 JSX 中 */}
-      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{isEditMode ? "编辑技师信息" : "添加新技师"}</DialogTitle>
-          </DialogHeader>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 mb-4">
-              <TabsTrigger value="basic">基本信息</TabsTrigger>
-              <TabsTrigger value="details">详细信息</TabsTrigger>
-              <TabsTrigger value="courses">课程价格</TabsTrigger>
-              <TabsTrigger value="media">照片与标签</TabsTrigger>
-            </TabsList>
-
-            <form onSubmit={handleSubmit}>
-              <TabsContent value="basic" className="space-y-4">
-                {/* 基础信息表单字段 */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">中文名称 <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="name_en">英文名称 <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="name_en"
-                      name="name_en"
-                      value={formData.name_en}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="age">年龄</Label>
-                    <Input
-                      id="age"
-                      name="age"
-                      type="number"
-                      min="18"
-                      max="60"
-                      value={formData.age}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="city_id">城市</Label>
-                    <Select
-                      value={formData.city_id.toString()}
-                      onValueChange={(value) => setFormData({ ...formData, city_id: parseInt(value) })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="选择城市" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">曼谷</SelectItem>
-                        <SelectItem value="1">芭提雅</SelectItem>
-                        <SelectItem value="2">清迈</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="gender">性别</Label>
-                    <Select
-                      value={formData.gender.toString()}
-                      onValueChange={(value) => setFormData({ ...formData, gender: parseInt(value) })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="选择性别" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">女</SelectItem>
-                        <SelectItem value="1">男</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="nationality">国籍</Label>
-                    <Select
-                      value={formData.nationality}
-                      onValueChange={(value) => setFormData({ ...formData, nationality: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="选择国籍" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="🇹🇭">🇹🇭 泰国</SelectItem>
-                        <SelectItem value="🇻🇳">🇻🇳 越南</SelectItem>
-                        <SelectItem value="🇨🇳">🇨🇳 中国</SelectItem>
-                        <SelectItem value="🇯🇵">🇯🇵 日本</SelectItem>
-                        <SelectItem value="🇰🇷">🇰🇷 韩国</SelectItem>
-                        <SelectItem value="🇷🇺">🇷🇺 俄罗斯</SelectItem>
-                        <SelectItem value="🇺🇦">🇺🇦 乌克兰</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="height">身高(cm)</Label>
-                    <Input
-                      id="height"
-                      name="height"
-                      type="number"
-                      min="140"
-                      max="200"
-                      value={formData.height}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="bwh">三围</Label>
-                    <Input
-                      id="bwh"
-                      name="bwh"
-                      placeholder="例: 34D/26/36"
-                      value={formData.bwh}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="category_id">分类 <span className="text-red-500">*</span></Label>
-                    <Select
-                      key={`category-select-${formData.category_id}`}
-                      value={String(formData.category_id)}
-                      onValueChange={(value) => {
-                        console.log("选择的分类ID:", value);
-                        setFormData({ ...formData, category_id: value });
-                      }}
-                      required
-                    >
-                      <SelectTrigger id="category_id">
-                        <SelectValue placeholder="选择分类" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map(category => (
-                          <SelectItem key={category.id} value={String(category.id)}>
-                            {category.name_zh}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="details" className="space-y-4">
-                <div className="max-h-[500px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
-                  {/* 详细信息表单字段 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="zhaobei">罩杯</Label>
-                      <Select
-                        value={formData.zhaobei}
-                        onValueChange={(value) => setFormData({ ...formData, zhaobei: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="选择罩杯" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="C-">C-</SelectItem>
-                          <SelectItem value="D">D</SelectItem>
-                          <SelectItem value="E">E</SelectItem>
-                          <SelectItem value="E+">E+</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="boobs">胸部类型</Label>
-                      <Select
-                        value={formData.boobs.toString()}
-                        onValueChange={(value) => setFormData({ ...formData, boobs: parseInt(value) })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="选择胸部类型" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">真胸</SelectItem>
-                          <SelectItem value="1">硅胶</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="complexion">肤色</Label>
-                      <Select
-                        value={formData.complexion.toString()}
-                        onValueChange={(value) => setFormData({ ...formData, complexion: parseInt(value) })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="选择肤色" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">自然肤</SelectItem>
-                          <SelectItem value="1">白皙肤</SelectItem>
-                          <SelectItem value="2">小麦肤</SelectItem>
-                          <SelectItem value="3">棕色肤</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="badge">徽章</Label>
-                      <Select
-                        value={formData.badge}
-                        onValueChange={(value) => setFormData({ ...formData, badge: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="选择徽章" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hot">无</SelectItem>
-                          <SelectItem value="top">明星</SelectItem>
-                          <SelectItem value="new">新人</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="experience">经验(年)</Label>
-                      <Input
-                        id="experience"
-                        name="experience"
-                        type="number"
-                        min="0"
-                        max="20"
-                        value={formData.experience}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="min_price">最低价格 <span className="text-red-500">*</span></Label>
-                      <Input
-                        id="min_price"
-                        name="min_price"
-                        type="number"
-                        value={formData.min_price}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="on_time">上班时间</Label>
-                      <Input
-                        id="on_time"
-                        name="on_time"
-                        type="time"
-                        value={formData.on_time.substring(0, 5)}
-                        onChange={(e) => setFormData({ ...formData, on_time: e.target.value + ":00" })}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="off_time">下班时间</Label>
-                      <Input
-                        id="off_time"
-                        name="off_time"
-                        type="time"
-                        value={formData.off_time.substring(0, 5)}
-                        onChange={(e) => setFormData({ ...formData, off_time: e.target.value + ":00" })}
-                      />
-                    </div>
-
-                    <div className="col-span-2 grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="profile">中文简介</Label>
-                        <Textarea
-                          id="profile"
-                          name="profile"
-                          value={formData.profile}
-                          onChange={handleInputChange}
-                          rows={3}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="profile_en">英文简介</Label>
-                        <Textarea
-                          id="profile_en"
-                          name="profile_en"
-                          value={formData.profile_en}
-                          onChange={handleInputChange}
-                          rows={3}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-span-2 grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="language_zh">语言能力(中文)</Label>
-                        <LanguageMultiSelect
-                          value={formData.language.zh}
-                          onChange={(value) => handleNestedChange('language', 'zh', value)}
-                          options={zhLanguageOptions}
-                          placeholder="请选择语言能力..."
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="language_en">语言能力(英文)</Label>
-                        <LanguageMultiSelect
-                          value={formData.language.en}
-                          onChange={(value) => handleNestedChange('language', 'en', value)}
-                          options={enLanguageOptions}
-                          placeholder="Select languages..."
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-span-2 grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="position_lat">位置(纬度)</Label>
-                        <Input
-                          id="position_lat"
-                          type="number"
-                          step="0.0001"
-                          value={formData.position.lat}
-                          onChange={(e) => handleNestedChange('position', 'lat', parseFloat(e.target.value))}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="position_lon">位置(经度)</Label>
-                        <Input
-                          id="position_lon"
-                          type="number"
-                          step="0.0001"
-                          value={formData.position.lon}
-                          onChange={(e) => handleNestedChange('position', 'lon', parseFloat(e.target.value))}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="courses" className="space-y-4">
-                {/* 课程信息 - 添加最大高度和滚动 */}
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">课程信息</h3>
-                    <Button type="button" onClick={addCourse} variant="outline" size="sm">
-                      添加课程
-                    </Button>
-                  </div>
-
-                  {/* 添加滚动容器 */}
-                  <div className="max-h-[450px] overflow-y-auto pr-2 space-y-4" style={{ scrollbarWidth: 'thin' }}>
-                    {courseList.map((course, index) => (
-                      <div key={index} className="border rounded-md p-4 space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h4 className="font-medium">课程 #{index + 1}</h4>
-                          {courseList.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeCourse(index)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              删除
-                            </Button>
-                          )}
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>中文名称</Label>
-                            <Input
-                              value={course.name}
-                              onChange={(e) => updateCourse(index, 'name', e.target.value)}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>英文名称</Label>
-                            <Input
-                              value={course.name_en}
-                              onChange={(e) => updateCourse(index, 'name_en', e.target.value)}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>中文描述</Label>
-                            <Input
-                              value={course.desc}
-                              onChange={(e) => updateCourse(index, 'desc', e.target.value)}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>英文描述</Label>
-                            <Input
-                              value={course.desc_en}
-                              onChange={(e) => updateCourse(index, 'desc_en', e.target.value)}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>价格</Label>
-                            <Input
-                              type="number"
-                              value={course.price}
-                              onChange={(e) => updateCourse(index, 'price', e.target.value)}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>成本价</Label>
-                            <Input
-                              type="number"
-                              value={course.cost_price || 0}
-                              onChange={(e) => updateCourse(index, 'cost_price', e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="media" className="space-y-4">
-                {/* 照片上传和标签 */}
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label> 头像上传 <span className="text-red-500">*</span></Label>
-                      <div className="border rounded-md p-4 text-center">
-                        <Input
-                          id="avatar"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="hidden"
-                        />
-                        <Label htmlFor="avatar" className="cursor-pointer block">
-                          {imagePreview ? (
-                            <div className="relative mx-auto w-40 h-40">
-                              <img
-                                src={imagePreview}
-                                alt="Preview"
-                                className="w-full h-full object-cover rounded-md"
-                              />
-                            </div>
-                          ) : (
-                            <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center">
-                              <span className="text-gray-500 mb-2">点击上传头像</span>
-                              <span className="text-xs text-gray-400">建议尺寸: 700x1200</span>
-                            </div>
-                          )}
-                        </Label>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Label htmlFor="is_show">显示状态</Label>
-                        <Switch
-                          id="is_show"
-                          checked={formData.is_show}
-                          onCheckedChange={(checked) => setFormData({ ...formData, is_show: checked })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Label htmlFor="is_medical">体检报告</Label>
-                        <Switch
-                          id="is_medical"
-                          checked={formData.is_medical}
-                          onCheckedChange={(checked) => setFormData({ ...formData, is_medical: checked })}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="status">状态</Label>
-                      <Select
-                        value={formData.status.toString()}
-                        onValueChange={(value) => setFormData({ ...formData, status: parseInt(value) })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="选择状态" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">在线</SelectItem>
-                          <SelectItem value="1">忙碌</SelectItem>
-                          <SelectItem value="2">离线</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="tags_zh">标签(中文)</Label>
-                      <Input
-                        id="tags_zh"
-                        placeholder="例: 深度舒缓,运动按摩"
-                        value={formData.tags.zh}
-                        onChange={(e) => handleNestedChange('tags', 'zh', e.target.value)}
-                      />
-                      <p className="text-xs text-gray-500">多个标签使用逗号分隔</p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="tags_en">标签(英文)</Label>
-                      <Input
-                        id="tags_en"
-                        placeholder="例: deep_relax,sport_massage"
-                        value={formData.tags.en}
-                        onChange={(e) => handleNestedChange('tags', 'en', e.target.value)}
-                      />
-                      <p className="text-xs text-gray-500">多个标签使用逗号分隔</p>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <DialogFooter className="mt-6">
-                <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
-                  取消
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "提交中..." : "保存技师"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
+      {/* 使用抽离的表单组件 */}
+      <GirlFormDialog
+        open={isAddOpen}
+        onOpenChange={setIsAddOpen}
+        isEditMode={isEditMode}
+        currentGirlId={currentGirlId}
+        onSuccess={handleFormSuccess}
+        categories={categories}
+      />
 
       {/* 删除确认对话框 */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -1688,6 +1165,7 @@ export default function GirlListPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
       {/* 相册对话框 */}
       <GirlAlbumDialog
         girlId={currentGirlId}
